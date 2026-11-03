@@ -1,0 +1,19 @@
+{
+  "name": "playwrite",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test:bdd": "node scripts/run-bdd.js",
+    "test:bdd:debug": "node scripts/run-bdd.js --debug"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@cucumber/cucumber": "^13.3.0",
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^26.6.5"
+  }
+}
