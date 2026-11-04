@@ -91,6 +91,56 @@ playwright.config.js         Configuração do Playwright
 reports/                     Relatórios gerados
 ```
 
+## CI/CD
+
+O pipeline está em `.github/workflows/ci-cd.yml` (GitHub Actions).
+
+### Quando executa
+
+- `push` nas branches `main` e `develop`
+- `pull_request` direcionado a `main` e `develop`
+
+Execuções antigas da mesma branch/PR são canceladas automaticamente (`concurrency`).
+
+### Fluxo
+
+```text
+Quality Gate -> E2E Tests -> Publish Test Results
+```
+
+Cada job tem `timeout-minutes` próprio (10, 30 e 5 min).
+
+### Quality Gate
+
+Faz checkout, setup do Node 20 com cache npm, `npm ci` e `npm run typecheck`. O projeto é JavaScript, então o `typecheck` valida a sintaxe de todos os arquivos `.js` com `node --check`. Se falhar, os testes E2E não rodam.
+
+### Instalação dos browsers
+
+`npx playwright install --with-deps chromium` instala apenas o Chromium (o único usado em `features/support/hooks.js`) e as dependências de sistema do runner Linux.
+
+### Execução dos testes
+
+`npm run test:bdd` é a única suíte executada: cenários Cucumber em `features/`, com o Playwright usado como biblioteca. Não há specs do Playwright Test (`tests/` não existe), então `npx playwright test` não é executado.
+
+### Relatórios
+
+- `reports/cucumber-report.html`: relatório do Cucumber, com screenshots de falha embutidos.
+
+### Artifacts
+
+Publicado mesmo quando os testes falham (`if: always()`):
+
+| Artifact | Conteúdo | Retenção |
+| --- | --- | --- |
+| `cucumber-report` | `reports/` | 30 dias |
+
+### Como visualizar os resultados
+
+1. Abra a aba **Actions** do repositório e selecione a execução desejada.
+2. Veja o status de cada job e o resumo (Summary) da execução.
+3. Na seção **Artifacts**, baixe `cucumber-report`.
+4. Descompacte e abra o `cucumber-report.html` no navegador.
+
 ## Observações
 
 - Os testes dependem do ambiente externo do SauceDemo e podem ser afetados por indisponibilidade da aplicação ou da rede.

@@ -1,0 +1,91 @@
+name: CI/CD - Web E2E
+
+# Executa em push e PR para as branches principais.
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+# Cancela execuções antigas da mesma branch/PR para economizar minutos.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: 20
+
+jobs:
+  # 1. Quality Gate: valida sintaxe antes de gastar tempo com browsers.
+  quality-gate:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm # cache do ~/.npm baseado no package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+  # 2. E2E Tests: única execução da suíte (Cucumber + Playwright como biblioteca).
+  e2e-tests:
+    name: E2E Tests
+    needs: quality-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # features/support/hooks.js usa apenas Chromium; evita baixar Firefox e WebKit.
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      # Gera reports/cucumber-report.html (screenshots de falha ficam embutidos nele).
+      - name: Run E2E tests
+        run: npm run test:bdd
+
+      # always() garante o upload mesmo com falha nos testes.
+      - name: Upload Cucumber report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: cucumber-report
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 30
+
+  # 3. Publish Test Results: resumo do resultado, mesmo quando os testes falham.
+  publish-test-results:
+    name: Publish Test Results
+    needs: e2e-tests
+    if: ${{ always() && needs.e2e-tests.result != 'skipped' }} # não roda se o Quality Gate falhou
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Publish summary
+        run: |
+          echo "### E2E result: ${{ needs.e2e-tests.result }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Download the \`cucumber-report\` artifact from this run to see the HTML report." >> "$GITHUB_STEP_SUMMARY"
