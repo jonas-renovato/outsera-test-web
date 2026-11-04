@@ -4,7 +4,7 @@ Projeto de testes end-to-end para o fluxo de login e checkout do [SauceDemo](htt
 
 ## Pré-requisitos
 
-- Node.js 18 ou superior
+- Node.js 26
 - npm
 - Acesso à internet, pois os testes acessam o SauceDemo
 
@@ -13,7 +13,7 @@ Projeto de testes end-to-end para o fluxo de login e checkout do [SauceDemo](htt
 Na raiz do projeto, execute:
 
 ```bash
-npm install
+npm ci
 npx playwright install chromium
 ```
 
@@ -112,7 +112,7 @@ Cada job tem `timeout-minutes` próprio (10, 30 e 5 min).
 
 ### Quality Gate
 
-Faz checkout, setup do Node 20 com cache npm, `npm ci` e `npm run typecheck`. O projeto é JavaScript, então o `typecheck` valida a sintaxe de todos os arquivos `.js` com `node --check`. Se falhar, os testes E2E não rodam.
+Faz checkout, setup do Node 26 com cache npm, `npm ci` e `npm run typecheck`. O projeto é JavaScript, então o `typecheck` valida a sintaxe de todos os arquivos `.js` com `node --check`. Se falhar, os testes E2E não rodam.
 
 ### Instalação dos browsers
 
