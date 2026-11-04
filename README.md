@@ -141,6 +141,28 @@ Publicado mesmo quando os testes falham (`if: always()`):
 3. Na seção **Artifacts**, baixe `cucumber-report`.
 4. Descompacte e abra o `cucumber-report.html` no navegador.
 
+## Evidências de Execução
+
+### Pipeline CI/CD
+
+A pipeline executa automaticamente as etapas de **Quality Gate**, **E2E Tests** e **Publish Test Results**.
+
+![Pipeline CI/CD](docs/web-pipeline-success.png)
+
+### Relatório de Testes E2E
+
+A suíte gera um relatório HTML do Cucumber contendo:
+
+- Features executadas
+- Cenários executados
+- Passos executados
+- Resultado dos testes
+- Evidências de falhas
+
+![Relatório Cucumber](docs/cucumber-report.png)
+
+Os relatórios completos são gerados automaticamente durante a execução da suíte e podem ser publicados como artifacts da pipeline GitHub Actions.
+
 ## Observações
 
 - Os testes dependem do ambiente externo do SauceDemo e podem ser afetados por indisponibilidade da aplicação ou da rede.
