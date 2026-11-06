@@ -1,3 +1,5 @@
+const config = require('../../config/environment');
+
 class LoginPage {
   constructor(page) {
     this.page = page;
@@ -8,7 +10,7 @@ class LoginPage {
   }
 
   async open() {
-    await this.page.goto('https://www.saucedemo.com/');
+    await this.page.goto(config.baseUrl);
   }
 
   async fillUsername(username) {

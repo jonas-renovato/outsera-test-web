@@ -1,3 +1,4 @@
+@login
 Feature: Login
 
   Scenario Outline: Tentativa de login
@@ -7,9 +8,14 @@ Feature: Login
     And clico em entrar
     Then devo visualizar "<resultado>"
 
-    Examples:
+    @smoke
+    Examples: Credenciais válidas
+      | usuario       | senha        | resultado          |
+      | standard_user | secret_sauce | pagina de produtos |
+
+    @negative
+    Examples: Credenciais inválidas ou ausentes
       | usuario       | senha        | resultado               |
-      | standard_user | secret_sauce | pagina de produtos      |
       | standard_user | senha_errada | mensagem de credenciais |
       | usuario_fake  | secret_sauce | mensagem de credenciais |
       |               |              | campos obrigatorios     |

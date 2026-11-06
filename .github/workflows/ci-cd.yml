@@ -17,6 +17,16 @@ permissions:
 
 env:
   NODE_VERSION: 26
+  # Valores vazios são ignorados; o fallback é config/<TEST_ENV>.env.
+  TEST_ENV: ${{ vars.TEST_ENV || 'dev' }}
+  BASE_URL: ${{ vars.BASE_URL }}
+  TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
+  TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+  DEFAULT_TIMEOUT: ${{ vars.DEFAULT_TIMEOUT }}
+  # Retry de 1 tentativa e evidências de falha (screenshot/trace/vídeo) em reports/.
+  RETRY: ${{ vars.RETRY || '1' }}
+  TRACE: ${{ vars.TRACE || 'on-failure' }}
+  VIDEO: ${{ vars.VIDEO || 'on-failure' }}
 
 jobs:
   # 1. Quality Gate: valida sintaxe antes de gastar tempo com browsers.
@@ -68,6 +78,7 @@ jobs:
         run: npm run test:bdd
 
       # always() garante o upload mesmo com falha nos testes.
+      # reports/ inclui o HTML, traces/, screenshots/ e videos/.
       - name: Upload Cucumber report
         if: ${{ always() }}
         uses: actions/upload-artifact@v4

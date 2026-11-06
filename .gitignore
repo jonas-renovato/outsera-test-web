@@ -1,4 +1,15 @@
 
+# macOS
+.DS_Store
+
+# Environment
+.env
+!.env.example
+
+# Relatórios e evidências geradas (a pasta é mantida via .gitkeep)
+/reports/*
+!/reports/.gitkeep
+
 # Playwright
 node_modules/
 /test-results/

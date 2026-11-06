@@ -1,6 +1,7 @@
 const { Given, When, Then } = require('@cucumber/cucumber');
 const { expect } = require('@playwright/test');
 const { LoginPage } = require('../pages/LoginPage');
+const config = require('../../config/environment');
 
 Given('que estou na tela de login', async function () {
   this.loginPage = new LoginPage(this.page);
@@ -28,7 +29,7 @@ Then('devo visualizar {string}', async function (resultado) {
       await expect(this.page.locator('[data-test="inventory-list"]')).toBeVisible();
       break;
     case 'mensagem de credenciais':
-      await expect(this.page).toHaveURL('https://www.saucedemo.com/');
+      await expect(this.page).toHaveURL(config.baseUrl);
       await expect(this.loginPage.loginButton).toBeVisible();
       await expect(this.loginPage.errorMessage).toBeVisible();
       await expect(this.loginPage.errorMessage).toHaveText(
@@ -36,7 +37,7 @@ Then('devo visualizar {string}', async function (resultado) {
       );
       break;
     case 'campos obrigatorios':
-      await expect(this.page).toHaveURL('https://www.saucedemo.com/');
+      await expect(this.page).toHaveURL(config.baseUrl);
       await expect(this.loginPage.loginButton).toBeVisible();
       await expect(this.loginPage.errorMessage).toBeVisible();
       await expect(this.loginPage.errorMessage).toHaveText(

@@ -2,12 +2,15 @@ const { Given, When, Then } = require('@cucumber/cucumber');
 const { expect } = require('@playwright/test');
 const { LoginPage } = require('../pages/LoginPage');
 const { CheckoutPage } = require('../pages/CheckoutPage');
+const config = require('../../config/environment');
+
+const { credentials, checkoutData } = config;
 
 async function login() {
   this.loginPage = new LoginPage(this.page);
   await this.loginPage.open();
-  await this.loginPage.fillUsername('standard_user');
-  await this.loginPage.fillPassword('secret_sauce');
+  await this.loginPage.fillUsername(credentials.username);
+  await this.loginPage.fillPassword(credentials.password);
   await this.loginPage.submit();
   await expect(this.page).toHaveURL(/\/inventory\.html$/);
   await expect(this.page.locator('[data-test="inventory-list"]')).toBeVisible();
@@ -36,17 +39,17 @@ Given('que estou no checkout', async function () {
 });
 
 When('preencho os dados sem CEP', async function () {
-  await this.checkoutPage.fillData('Ana', 'Silva', '');
-  await expect(this.checkoutPage.firstNameInput).toHaveValue('Ana');
-  await expect(this.checkoutPage.lastNameInput).toHaveValue('Silva');
+  await this.checkoutPage.fillData(checkoutData.firstName, checkoutData.lastName, '');
+  await expect(this.checkoutPage.firstNameInput).toHaveValue(checkoutData.firstName);
+  await expect(this.checkoutPage.lastNameInput).toHaveValue(checkoutData.lastName);
   await expect(this.checkoutPage.postalCodeInput).toHaveValue('');
 });
 
 When('preencho os dados sem nome', async function () {
-  await this.checkoutPage.fillData('', 'Silva', '01001-000');
+  await this.checkoutPage.fillData('', checkoutData.lastName, checkoutData.postalCode);
   await expect(this.checkoutPage.firstNameInput).toHaveValue('');
-  await expect(this.checkoutPage.lastNameInput).toHaveValue('Silva');
-  await expect(this.checkoutPage.postalCodeInput).toHaveValue('01001-000');
+  await expect(this.checkoutPage.lastNameInput).toHaveValue(checkoutData.lastName);
+  await expect(this.checkoutPage.postalCodeInput).toHaveValue(checkoutData.postalCode);
 });
 
 When('clico em continuar', async function () {
@@ -62,7 +65,11 @@ Then('devo visualizar a mensagem {string}', async function (mensagem) {
 });
 
 When('preencho os dados obrigatórios', async function () {
-  await this.checkoutPage.fillRequiredData('Ana', 'Silva', '01001-000');
+  await this.checkoutPage.fillRequiredData(
+    checkoutData.firstName,
+    checkoutData.lastName,
+    checkoutData.postalCode
+  );
   await expect(this.page).toHaveURL(/\/checkout-step-two\.html$/);
   await expect(this.checkoutPage.productName).toHaveCount(1);
   await expect(this.checkoutPage.productName).toHaveText('Sauce Labs Backpack');
